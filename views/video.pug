@@ -1,0 +1,15 @@
+extends layout.pug
+
+block body
+  .video-container
+    .video-controls#video-controls
+      video#video-player(width="950" muted="muted" autoplay)
+        source(src="/video", type="video/mp4")
+      .controls 
+        .play 
+          i.fas.fa-pause
+  p#room-code= room
+
+block scripts 
+  script(src="/socket.io/socket.io.js")
+  script(src="/js/video.js")

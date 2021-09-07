@@ -1,14 +1,29 @@
 extends layout.pug
 
+block head 
+  link(rel="stylesheet", href="/css/video.css")
+
+block vars
+  -var bodyClass = "preload"
+
 block body
+  .room-code 
+    p#code= room
   .video-container
     .video-controls#video-controls
-      video#video-player(width="950" muted="muted" autoplay)
+      video#video-player(autoplay)
         source(src="/video", type="video/mp4")
+      .volume
+        .volume-button.volume-item
+          i.fas.fa-volume-up
+        .volume-slider.volume-item
+          input(type="range" step="0.05" min="0" max="1" value="0.4")
       .controls 
-        .play 
+        .progress
+        .play.control
           i.fas.fa-pause
-  p#room-code= room
+        .fullscreen.control
+          i.fas.fa-expand
 
 block scripts 
   script(src="/socket.io/socket.io.js")

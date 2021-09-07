@@ -14,10 +14,10 @@ router.get("/video", function (req, res) {
   if (!range) {
     res.status(400).send("Requires Range header");
   }
-
+  const video = "test2.mp4"
   // get video stats (about 61MB)
-  const videoPath = "test2.mp4";
-  const videoSize = fs.statSync("test2.mp4").size;
+  const videoPath = video;
+  const videoSize = fs.statSync(videoPath).size;
 
   // Parse Range
   // Example: "bytes=32324-"
@@ -31,12 +31,12 @@ router.get("/video", function (req, res) {
     "Content-Range": `bytes ${start}-${end}/${videoSize}`,
     "Accept-Ranges": "bytes",
     "Content-Length": contentLength,
+    "Content-Title": video.split(".")[0],
     "Content-Type": "video/mp4",
   };
 
   // HTTP Status 206 for Partial Content
   res.writeHead(206, headers);
-
   // create video read stream for this particular chunk
   const videoStream = fs.createReadStream(videoPath, { start, end });
 

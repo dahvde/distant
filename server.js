@@ -8,11 +8,15 @@ const server = http.createServer(app);
 const io = socketio(server)
 
 io.on("connection", (socket) => {
+  try {
   socket.on("room-code", (e) => {
-    socket.join(e)
-    const adminId = io.sockets.adapter.rooms.get(e).values().next().value
-    if (io.sockets.adapter.rooms.get(e).size > 1) {
-      socket.broadcast.to(adminId).emit("get-time", socket.id)
+    const save = socket.join(e)
+    const room = io.sockets.adapter.rooms.get(e)
+    if (room) {
+      const adminId = room.values().next().value
+      if (io.sockets.adapter.rooms.get(e).size > 1) {
+        socket.broadcast.to(adminId).emit("get-time", socket.id)
+      }
     }
     socket.emit("message", "Joined Room " + e)
   })
@@ -29,6 +33,9 @@ io.on("connection", (socket) => {
     const {targetClient, time} = e
     socket.broadcast.to(targetClient).emit("send-time", time)
   })
+ } catch (e) {
+   console.log(e)
+ }
 })
 
 server.listen(PORT, () => {

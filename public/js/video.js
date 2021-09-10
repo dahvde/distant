@@ -5,9 +5,24 @@ const play = document.querySelector(".controls .play")
 const fullscreen = document.querySelector(".controls .fullscreen")
 const volume_button = document.querySelector(".volume-button")
 const volume_slider = document.querySelector(".volume-slider input[type='range']")
+const sync = document.getElementById("sync")
 let room_joined = false
 let video_volume_store;
 video.volume = volume_slider.value
+if (video.muted) {
+  switchVolume("muted")
+} else {
+  switchVolume("unmuted")
+}
+video.onloadeddata = (e) => {
+  if (video.paused) {
+    switchControl("pause")
+  } else {
+    switchControl("play")
+  }
+  var start = Date.now()
+  socket.emit("get-time", {room, time: {start, end: null}})
+}
 video.addEventListener("timeupdate", (e) => {
   // console.log(e.target.currentTime)
   socket.emit("video-timestamp")
@@ -17,11 +32,11 @@ document.addEventListener("DOMContentLoaded", (e) => {
   document.body.classList.remove("preload")
 })
 
-if (video.paused) {
-  switchControl("pause")
-} else {
-  switchControl("play")
-}
+sync.addEventListener("click", (e) => {
+  var start = Date.now()
+  socket.emit("get-time", {room, time: {start, end: null}})
+})
+
 video.addEventListener("play", (e) => {
   if (room_joined) {
     socket.emit("video-options", {paused: false, room})
@@ -36,14 +51,16 @@ video.addEventListener("pause", (e) => {
 
 volume_button.addEventListener("click", (e) => {
   const classList = e.target.classList
-  if (video.volume) {
-    video_volume_store = video.volume
-    video.volume = 0
-    volume_slider.value = 0
+  console.log(video.muted)
+  if (!video.muted) {
+    // video_volume_store = video.volume
+    video.muted = true
+    // volume_slider.value = 0
     switchVolume("mute")
   } else {
-    video.volume = video_volume_store
+    // video.volume = video_volume_store
     volume_slider.value = video_volume_store
+    video.muted = false
     switchVolume("unmute")
   }
 })
@@ -122,11 +139,13 @@ function openFullscreen() {
 
 socket.on("get-time", (e) => {
   console.log(e)
-  socket.emit("send-time", {time: video.currentTime, targetClient: e})
+  socket.emit("send-time", {time: {video: video.currentTime, client: e.time}, targetClient: e.client_id})
 })
 
 socket.on("send-time", (e) => {
-  video.currentTime = e
+  console.log(e)
+  const sub_date = (Date.now() - e.client.start) / 1000
+  video.currentTime = e.video + sub_date
   console.log(e)
 })
 

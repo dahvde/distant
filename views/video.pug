@@ -11,7 +11,7 @@ block body
     p#code= room
   .video-container
     .video-controls#video-controls
-      video#video-player(autoplay)
+      video#video-player(autoplay playsinline)
         source(src="/video", type="video/mp4")
       .volume
         .volume-button.volume-item
@@ -24,6 +24,7 @@ block body
           i.fas.fa-pause
         .fullscreen.control
           i.fas.fa-expand
+    p#sync Sync Time
 
 block scripts 
   script(src="/socket.io/socket.io.js")

@@ -4,7 +4,7 @@ const router = express()
 
 const fs = require("fs");
 
-router.get("/", (req, res) => {
+router.get(["/", "/join"], (req, res) => {
   res.render("home")
 })
 
@@ -14,9 +14,9 @@ router.get("/video", function (req, res) {
   if (!range) {
     res.status(400).send("Requires Range header");
   }
-  const video = "test2.mp4"
+  const video = "" // movie title
   // get video stats (about 61MB)
-  const videoPath = video;
+  const videoPath = "" // movie path;
   const videoSize = fs.statSync(videoPath).size;
 
   // Parse Range

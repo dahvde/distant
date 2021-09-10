@@ -11,14 +11,20 @@ io.on("connection", (socket) => {
   try {
   socket.on("room-code", (e) => {
     const save = socket.join(e)
-    const room = io.sockets.adapter.rooms.get(e)
+    socket.emit("message", "Joined Room " + e)
+  })
+  socket.on("get-time", (e) => {
+    const room = io.sockets.adapter.rooms.get(e.room)
+    console.log(e)
+    console.log(room)
     if (room) {
       const adminId = room.values().next().value
-      if (io.sockets.adapter.rooms.get(e).size > 1) {
-        socket.broadcast.to(adminId).emit("get-time", socket.id)
+      if (adminId != socket.id) {
+        if (room.size > 1) {
+          socket.broadcast.to(adminId).emit("get-time", {client_id: socket.id, time: e.time})
+        }
       }
     }
-    socket.emit("message", "Joined Room " + e)
   })
   socket.on("video-options", (e) => {
     if (!e.paused) {
@@ -31,6 +37,7 @@ io.on("connection", (socket) => {
   })
   socket.on("send-time", (e) => {
     const {targetClient, time} = e
+    console.log(time)
     socket.broadcast.to(targetClient).emit("send-time", time)
   })
  } catch (e) {

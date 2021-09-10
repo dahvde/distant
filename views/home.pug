@@ -1,5 +1,118 @@
 extends layout.pug 
 
+block head 
+  style#important-styles
+
 block body
-  form(action="/room/create-room", method="post")
-    input(type="submit", value="Create Room")
+  .options-box
+    .back-button#back
+      i.fas.fa-chevron-left
+    form(action="/room/create-room", method="post")
+      button.option-button#room-create(type="submit", value="Create Room")
+        p.button-text Create Room
+        i.fas.fa-plus.button-text.dynamic-color
+    button.option-button#room-join(value="Join Room")
+      p.button-text Join Room
+      i.fas.fa-sign-in-alt.button-text.dynamic-color
+    .join-room-container#join-input
+      input#join-code(type="text", placeholder="Acces Code")
+      p#join-text Access Code
+      i.far.fa-arrow-alt-circle-right#join-button
+  script.
+    const room_join = document.getElementById("room-join")
+    const room_create = document.getElementById("room-create")
+    const join_input = document.getElementById("join-input")
+    const join_code = document.getElementById("join-code")
+    const back_button = document.getElementById("back")
+    const join_button = document.getElementById("join-button")
+    const important_css = document.getElementById("important-styles")
+    const animation_wait = 340
+    room_join.addEventListener("click", (e) => {
+      actions.show_join()
+      window.history.pushState({additionalInformation: 'Updated the URL with JS'}, "Join", "/join");
+    })
+    back_button.addEventListener("click", (e) => {
+      actions.unshow_join()
+      window.history.replaceState({additionalInformation: 'Updated the URL with JS'}, "Home", "/");
+    })
+    join_button.addEventListener("click", (e) => {
+      window.location.href = `/room/${join_code.value}`
+    })
+    const actions = {
+      show_join: function () {
+        //- room_join.style.display = "none"
+        room_join.style.transform = "translateY(-40px)"
+        room_join.style.opacity = "0%"
+        setTimeout(() => {
+          room_create.style.transform = "translateY(-20px)"
+          room_create.style.opacity = "0%"
+          setTimeout(() => {
+            room_create.style.display = "none"
+            room_join.style.display = "none"
+            join_transition()
+          }, animation_wait)
+        }, 120)
+        function join_transition() {
+          join_input.style.display = "flex"
+          back_button.style.display = "flex"
+          setTimeout(() => {
+          join_input.style.transform = "translateY(0)"
+          back_button.style.transform = "translateY(0)"
+          join_input.style.opacity = "1"
+          back_button.style.opacity = "1"
+          }, 10)
+        }
+        //- room_create.style.display = "none"
+      },
+      unshow_join: function () {
+        back_button.style.transform = "translateY(-40px)"
+        back_button.style.opacity = "0%"
+        setTimeout(() => {
+          join_input.style.transform = "translateY(40px)"
+          join_input.style.opacity = "0%"
+          setTimeout(() => {
+            back_button.style.display = "none"
+            join_input.style.display = "none"
+            join_transition()
+          }, animation_wait)
+        }, 120)
+        function join_transition() {
+          room_create.style.display = "block"
+          room_join.style.display = "block"
+          setTimeout(() => {
+          room_create.style.transform = "translateY(0)"
+          room_join.style.transform = "translateY(0)"
+          room_create.style.opacity = "1"
+          room_join.style.opacity = "1"
+          }, 10)
+        }
+      }
+    }
+    if (window.location.pathname != "/join") {
+      setTimeout(() => {
+      important_css.innerHTML = `
+        #room-create {
+          transform: translateY(0);
+          opacity: 100%;
+          transition: box-shadow 0.2s, transform 0.5s, opacity 0.4s;
+        }
+      `
+      setTimeout(() => {
+        important_css.innerHTML += `
+        #room-join {
+          transform: translateY(0);
+          opacity: 100%;
+          transition: box-shadow 0.2s, transform 0.5s, opacity 0.4s;
+        }
+      `
+      }, 100)
+      }, 100)
+    } else {
+      important_css.innerHTML += `
+        #room-join, #room-create {
+          transition: box-shadow 0.2s, transform 0.5s, opacity 0.4s;
+        }
+      `
+      console.log("yoo")
+      actions.show_join()
+    }
